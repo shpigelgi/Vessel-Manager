@@ -47,4 +47,9 @@ public class VesselService {
     public List<Vessel> getAllVessels() {
         return vesselRepository.findAll();
     }
+
+    public void deleteAllVessels() {
+        vesselRepository.deleteAll();
+    }
+
 }

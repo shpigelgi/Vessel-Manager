@@ -18,7 +18,7 @@ public class VesselController {
 
     @PostMapping
     public ResponseEntity<Vessel> createVessel(@RequestBody Vessel vessel) {
-        if (vessel.getType().equals("Cargo") || vessel.getType().equals("Tanker") || vessel.getType().equals("Cruise") || vessel.getType().equals("Fishing") || vessel.getType().equals("Military")) {
+        if (isValidType(vessel.getType())) {
             return ResponseEntity.ok(vesselService.createVessel(vessel.getType(), vessel.getColor()));
         } else {
             return ResponseEntity.badRequest().build();
@@ -32,11 +32,19 @@ public class VesselController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Vessel> updateVessel(@PathVariable UUID id, @RequestBody Vessel vessel) {
+        if (vesselService.getVesselById(id).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else if (!isValidType(vessel.getType())) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(vesselService.updateVessel(id, vessel.getType(), vessel.getColor()));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteVessel(@PathVariable UUID id) {
+        if (vesselService.getVesselById(id).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         vesselService.deleteVesselById(id);
         return ResponseEntity.noContent().build();
     }
@@ -49,5 +57,15 @@ public class VesselController {
     @GetMapping("/color/{color}")
     public ResponseEntity<List<Vessel>> getVesselsByColor(@PathVariable String color) {
         return ResponseEntity.ok(vesselService.getVesselsByColor(color));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAllVessels() {
+        vesselService.deleteAllVessels();
+        return ResponseEntity.noContent().build();
+    }
+
+    private boolean isValidType(String type) {
+        return type.equals("Cargo") || type.equals("Tanker") || type.equals("Cruise") || type.equals("Fishing") || type.equals("Military");
     }
 }

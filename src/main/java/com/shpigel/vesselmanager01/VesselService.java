@@ -43,4 +43,8 @@ public class VesselService {
         vesselRepository.deleteById(id);
         return vesselRepository.save(vessel);
     }
+
+    public List<Vessel> getAllVessels() {
+        return vesselRepository.findAll();
+    }
 }

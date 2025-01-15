@@ -8,8 +8,7 @@ import java.util.UUID;
 @Entity
 public class Vessel {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID id;
+    private UUID id = UUID.randomUUID();
 
     @Column(nullable = false)
     private String type;

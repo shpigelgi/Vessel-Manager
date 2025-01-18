@@ -6,7 +6,12 @@ import jakarta.persistence.Id;
 
 import java.util.UUID;
 
-
+/**
+ * Represents a vessel entity.
+ * JPA will use this to build the vessels table in the database.
+ * The table will have columns for id, type, and color.
+ * The id is the primary key.
+ */
 @Entity
 public class Vessel {
     @Id

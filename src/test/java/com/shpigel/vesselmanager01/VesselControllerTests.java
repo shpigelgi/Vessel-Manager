@@ -18,10 +18,7 @@ import java.util.UUID;
 public class VesselControllerTests {
 
     @Container
-    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:13.2")
-            .withDatabaseName("testdb")
-            .withUsername("vessel_manager")
-            .withPassword("vessel_manager");
+    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:13.2").withDatabaseName("testdb").withUsername("vessel_manager").withPassword("vessel_manager");
 
     @Autowired
     private VesselRepository vesselRepository;
@@ -48,16 +45,17 @@ public class VesselControllerTests {
         vessel.setType("Cargo");
         vessel.setColor("Blue");
         Vessel v = vesselController.createVessel(vessel).getBody();
-        assert vesselController.getAllVessels().getBody().size() == 1;
-        assert v.getColor().equals("Blue");
-        assert v.getType().equals("Cargo");
-        assert v.getId() != null;
+        Assertions.assertEquals(1, vesselController.getAllVessels().getBody().size());
+        Assertions.assertNotNull(v);
+        Assertions.assertEquals("Blue", v.getColor());
+        Assertions.assertEquals("Cargo", v.getType());
+        Assertions.assertNotNull(v.getId());
 
         //test fail case
         Vessel vessel2 = new Vessel();
         vessel2.setType("Submarine");
         vessel2.setColor("Black");
-        assert vesselController.createVessel(vessel2).getStatusCode().is4xxClientError();
+        Assertions.assertTrue(vesselController.createVessel(vessel2).getStatusCode().is4xxClientError());
     }
 
     @Test
@@ -66,12 +64,13 @@ public class VesselControllerTests {
         vessel.setType("Tanker");
         vessel.setColor("Red");
         Vessel savedVessel = vesselController.createVessel(vessel).getBody();
+        Assertions.assertNotNull(savedVessel);
         Vessel fetchedVessel = vesselController.getVesselById(savedVessel.getId()).getBody();
-        assert fetchedVessel != null;
-        assert fetchedVessel.getId().equals(savedVessel.getId());
+        Assertions.assertNotNull(fetchedVessel);
+        Assertions.assertEquals(savedVessel.getId(), fetchedVessel.getId());
 
         //test fail case - the probability of getting a random UUID that is already in the database is very low
-        assert vesselController.getVesselById(UUID.randomUUID()).getStatusCode().is4xxClientError();
+        Assertions.assertTrue(vesselController.getVesselById(UUID.randomUUID()).getStatusCode().is4xxClientError());
     }
 
     @Test
@@ -84,12 +83,14 @@ public class VesselControllerTests {
         updatedVessel.setType("Tanker");
         updatedVessel.setColor("Red");
         Vessel fetchedVessel = vesselController.updateVessel(savedVessel.getId(), updatedVessel).getBody();
-        assert fetchedVessel != null;
-        assert fetchedVessel.getId().equals(savedVessel.getId());
-        assert fetchedVessel.getColor().equals("Red");
-        assert fetchedVessel.getType().equals("Tanker");
+        Assertions.assertNotNull(fetchedVessel);
+        Assertions.assertEquals(savedVessel.getId(), fetchedVessel.getId());
+        Assertions.assertEquals("Red", fetchedVessel.getColor());
+        Assertions.assertEquals("Tanker", fetchedVessel.getType());
 
         //test fail case
+        updatedVessel.setType("Submarine");
+        Assertions.assertTrue(vesselController.updateVessel(savedVessel.getId(), updatedVessel).getStatusCode().is4xxClientError());
         Assertions.assertTrue(vesselController.updateVessel(UUID.randomUUID(), updatedVessel).getStatusCode().is4xxClientError());
     }
 
@@ -99,12 +100,13 @@ public class VesselControllerTests {
         vessel.setType("Cruise");
         vessel.setColor("White");
         Vessel savedVessel = vesselController.createVessel(vessel).getBody();
+        Assertions.assertNotNull(savedVessel);
         vesselController.deleteVessel(savedVessel.getId());
-        assert vesselController.getAllVessels().getBody().isEmpty();
+        Assertions.assertTrue(vesselController.getAllVessels().getBody().isEmpty());
 
         //test fail case
+        Assertions.assertTrue(vesselController.deleteVessel(savedVessel.getId()).getStatusCode().is4xxClientError());
         Assertions.assertTrue(vesselController.deleteVessel(UUID.randomUUID()).getStatusCode().is4xxClientError());
-
     }
 
     @Test
@@ -112,7 +114,7 @@ public class VesselControllerTests {
         Vessel vessel = new Vessel();
         vessel.setType("Cruise");
         vessel.setColor("White");
-        Vessel savedVessel = vesselController.createVessel(vessel).getBody();
+        vesselController.createVessel(vessel);
         Assertions.assertEquals(1, vesselController.getVesselsByColor("White").getBody().size());
 
         //test fail case

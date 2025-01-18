@@ -1,5 +1,6 @@
 package com.shpigel.vesselmanager01;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public class VesselRepositoryTests {
 
     @Container
-    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:13.2")
-            .withDatabaseName("testdb")
-            .withUsername("vessel_manager")
-            .withPassword("vessel_manager");
+    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:13.2").withDatabaseName("testdb").withUsername("vessel_manager").withPassword("vessel_manager");
 
     @Autowired
     private VesselRepository vesselRepository;
@@ -43,10 +41,10 @@ public class VesselRepositoryTests {
         vessel.setType("Cargo");
         vessel.setColor("Blue");
         Vessel v = vesselRepository.save(vessel);
-        assert vesselRepository.count() == 1;
-        assert v.getColor().equals("Blue");
-        assert v.getType().equals("Cargo");
-        assert v.getId() != null;
+        Assertions.assertEquals(1, vesselRepository.count());
+        Assertions.assertEquals("Blue", v.getColor());
+        Assertions.assertEquals("Cargo", v.getType());
+        Assertions.assertNotNull(v.getId());
     }
 
     @Test
@@ -56,10 +54,10 @@ public class VesselRepositoryTests {
         vessel.setColor("Red");
         Vessel savedVessel = vesselRepository.save(vessel);
         Vessel fetchedVessel = vesselRepository.findById(savedVessel.getId()).orElse(null);
-        assert fetchedVessel != null;
-        assert fetchedVessel.getId().equals(savedVessel.getId());
-        assert fetchedVessel.getColor().equals("Red");
-        assert fetchedVessel.getType().equals("Tanker");
+        Assertions.assertNotNull(fetchedVessel);
+        Assertions.assertEquals(savedVessel.getId(), fetchedVessel.getId());
+        Assertions.assertEquals("Red", fetchedVessel.getColor());
+        Assertions.assertEquals("Tanker", fetchedVessel.getType());
     }
 
     @Test
@@ -70,8 +68,8 @@ public class VesselRepositoryTests {
         Vessel savedVessel = vesselRepository.save(vessel);
         savedVessel.setColor("Yellow");
         Vessel updatedVessel = vesselRepository.save(savedVessel);
-        assert updatedVessel.getColor().equals("Yellow");
-        assert updatedVessel.getType().equals("Fishing");
+        Assertions.assertEquals("Yellow", updatedVessel.getColor());
+        Assertions.assertEquals("Fishing", updatedVessel.getType());
     }
 
     @Test
@@ -81,9 +79,8 @@ public class VesselRepositoryTests {
         vessel.setColor("White");
         Vessel savedVessel = vesselRepository.save(vessel);
         vesselRepository.delete(savedVessel);
-        assert vesselRepository.count() == 0;
+        Assertions.assertEquals(0, vesselRepository.count());
     }
 
-    
 
 }
